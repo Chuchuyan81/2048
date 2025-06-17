@@ -40,25 +40,240 @@
       font-size: 16px;
     }
 
-    /* Стилизованная кнопка "Новая игра" */
+    /* Кнопка "Новая игра" в виде круглой стрелочки */
     .new-game-button {
       position: absolute;
       top: 20px;
       right: 20px;
-      background: #776e65; /* Темный фон, как у основных элементов */
+      background: #776e65;
       color: white;
       border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      font-size: 18px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 24px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
       z-index: 5;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Тень для объема */
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .new-game-button:hover {
-      background: #5d5757; /* Темнее при наведении */
+      background: #5d5757;
+      transform: scale(1.1);
+    }
+
+    .new-game-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Меню "?" */
+    .help-menu {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+
+    .help-button {
+      background: #776e65;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    }
+
+    .help-button:hover {
+      background: #5d5757;
+      transform: scale(1.1);
+    }
+
+    .help-dropdown {
+      position: absolute;
+      top: 45px;
+      left: 0;
+      background: white;
+      border: 2px solid #bbada0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: none;
+      min-width: 180px;
+      z-index: 15;
+    }
+
+    .help-dropdown.show {
+      display: block;
+    }
+
+    .help-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      color: #776e65;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .help-item:hover {
+      background: #f8f8f8;
+    }
+
+    .help-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Модальные окна */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #776e65;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      color: #776e65;
+    }
+
+    .modal-body {
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .modal-body h3 {
+      color: #776e65;
+      margin: 15px 0 8px 0;
+    }
+
+    .modal-body ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .modal-body li {
+      margin-bottom: 5px;
+    }
+
+    .control-keys {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 15px 0;
+    }
+
+    .key {
+      background: #776e65;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 16px;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    /* Переключатель экранной клавиатуры */
+    .keyboard-toggle {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 5;
+    }
+
+    .toggle-label {
+      color: #776e65;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #776e65;
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.active .toggle-knob {
+      transform: translateX(26px);
     }
 
     h1 {
@@ -122,13 +337,20 @@
       text-shadow: 1px 1px 2px black;
     }
 
-    /* Мобильные кнопки */
+    /* Экранная клавиатура */
     .controls {
       display: flex;
       flex-direction: column;
       align-items: center;
       margin-top: 20px;
       width: 100%;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .controls.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
     }
 
     .control-row {
@@ -138,31 +360,103 @@
       margin: 5px 0;
     }
 
-    button {
+    .control-button {
       padding: 15px 25px;
       font-size: 18px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       background: #776e65;
       color: white;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      user-select: none;
     }
 
-    button:hover {
+    .control-button:hover {
       background: #5d5757;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
+    .control-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Автоскрытие на больших экранах отключено */
     @media (min-width: 600px) {
       .controls {
-        display: none;
+        /* display: flex; Не скрываем автоматически */
+      }
+    }
+
+    /* Мобильная адаптация */
+    @media (max-width: 480px) {
+      .new-game-button {
+        top: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+      }
+
+      .help-menu {
+        top: 10px;
+        left: 10px;
+      }
+
+      .help-button {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+      }
+
+      .keyboard-toggle {
+        top: 65px;
+        right: 10px;
+      }
+
+      .toggle-label {
+        font-size: 11px;
+      }
+
+      .toggle-switch {
+        width: 40px;
+        height: 20px;
+      }
+
+      .toggle-knob {
+        width: 16px;
+        height: 16px;
+      }
+
+      .toggle-switch.active .toggle-knob {
+        transform: translateX(20px);
       }
     }
   </style>
 </head>
 <body>
-  <!-- Стилизованная кнопка "Новая игра" -->
-  <button class="new-game-button" onclick="resetGame()">Новая игра</button>
+  <!-- Меню помощи -->
+  <div class="help-menu">
+    <button class="help-button" onclick="toggleHelpMenu()">?</button>
+    <div class="help-dropdown" id="helpDropdown">
+      <div class="help-item" onclick="showRules()">Правила</div>
+      <div class="help-item" onclick="showControls()">Управление</div>
+    </div>
+  </div>
+
+  <!-- Кнопка "Новая игра" в виде круглой стрелочки -->
+  <button class="new-game-button" onclick="resetGame()" title="Новая игра">↻</button>
+
+  <!-- Переключатель экранной клавиатуры -->
+  <div class="keyboard-toggle">
+    <span class="toggle-label">Клавиши</span>
+    <div class="toggle-switch" id="keyboardToggle" onclick="toggleKeyboard()">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
 
   <h1>2048</h1>
 
@@ -174,15 +468,85 @@
   <div id="game-container"></div>
   <div id="message"></div>
 
-  <!-- Мобильные кнопки -->
-  <div class="controls">
+  <!-- Экранная клавиатура -->
+  <div class="controls" id="gameControls">
     <div class="control-row">
-      <button onclick="move('ArrowUp')">↑</button>
+      <button class="control-button" onclick="move('ArrowUp')">↑</button>
     </div>
     <div class="control-row">
-      <button onclick="move('ArrowLeft')">←</button>
-      <button onclick="move('ArrowDown')">↓</button>
-      <button onclick="move('ArrowRight')">→</button>
+      <button class="control-button" onclick="move('ArrowLeft')">←</button>
+      <button class="control-button" onclick="move('ArrowDown')">↓</button>
+      <button class="control-button" onclick="move('ArrowRight')">→</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно "Правила" -->
+  <div class="modal" id="rulesModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Правила игры 2048</h2>
+        <button class="modal-close" onclick="closeModal('rulesModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <h3>Цель игры</h3>
+        <p>Объедините плитки с одинаковыми числами, чтобы получить плитку с числом 2048.</p>
+        
+        <h3>Как играть</h3>
+        <ul>
+          <li>Используйте стрелочки для перемещения плиток</li>
+          <li>Когда две плитки с одинаковым числом соприкасаются, они объединяются в одну</li>
+          <li>После каждого хода появляется новая плитка с числом 2 или 4</li>
+          <li>Игра заканчивается, когда поле заполнено и нельзя сделать ход</li>
+        </ul>
+
+        <h3>Очки</h3>
+        <p>За каждое объединение вы получаете очки, равные значению новой плитки. Старайтесь получить как можно больше очков!</p>
+
+        <h3>Стратегия</h3>
+        <ul>
+          <li>Держите наибольшую плитку в углу</li>
+          <li>Выстраивайте плитки в порядке убывания</li>
+          <li>Не торопитесь и планируйте несколько ходов вперед</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно "Управление" -->
+  <div class="modal" id="controlsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Управление</h2>
+        <button class="modal-close" onclick="closeModal('controlsModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <h3>Клавиатура</h3>
+        <p>Используйте стрелки на клавиатуре для управления:</p>
+        <div class="control-keys">
+          <div class="key">↑</div>
+          <div class="key">↓</div>
+          <div class="key">←</div>
+          <div class="key">→</div>
+        </div>
+
+        <h3>Экранные кнопки</h3>
+        <p>Вы можете включить или выключить экранные кнопки управления с помощью переключателя "Клавиши" в правом верхнем углу.</p>
+
+        <h3>Тачскрин</h3>
+        <p>На сенсорных устройствах проводите пальцем по игровому полю:</p>
+        <ul>
+          <li><strong>Вверх</strong> - проведите пальцем вверх</li>
+          <li><strong>Вниз</strong> - проведите пальцем вниз</li>
+          <li><strong>Влево</strong> - проведите пальцем влево</li>
+          <li><strong>Вправо</strong> - проведите пальцем вправо</li>
+        </ul>
+
+        <h3>Дополнительно</h3>
+        <ul>
+          <li><strong>Новая игра</strong> - нажмите круглую кнопку ↻ в правом верхнем углу</li>
+          <li><strong>Справка</strong> - нажмите кнопку ? в левом верхнем углу</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -194,9 +558,19 @@
     document.getElementById("best").textContent = bestScore;
 
     let gameOver = false;
+    let keyboardVisible = true;
 
     const gameContainer = document.getElementById('game-container');
     const message = document.getElementById('message');
+    const gameControls = document.getElementById('gameControls');
+    const keyboardToggle = document.getElementById('keyboardToggle');
+
+    // Инициализация состояния клавиатуры из localStorage
+    const savedKeyboardState = localStorage.getItem('keyboardVisible');
+    if (savedKeyboardState !== null) {
+      keyboardVisible = savedKeyboardState === 'true';
+    }
+    updateKeyboardVisibility();
 
     function createBoard() {
       gameContainer.innerHTML = '';
@@ -323,6 +697,69 @@
       addRandomTile();
       updateBoard();
     }
+
+    // Функции для управления экранной клавиатурой
+    function toggleKeyboard() {
+      keyboardVisible = !keyboardVisible;
+      localStorage.setItem('keyboardVisible', keyboardVisible);
+      updateKeyboardVisibility();
+    }
+
+    function updateKeyboardVisibility() {
+      if (keyboardVisible) {
+        gameControls.classList.remove('hidden');
+        keyboardToggle.classList.add('active');
+      } else {
+        gameControls.classList.add('hidden');
+        keyboardToggle.classList.remove('active');
+      }
+    }
+
+    // Функции для меню помощи
+    function toggleHelpMenu() {
+      const dropdown = document.getElementById('helpDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    function showRules() {
+      document.getElementById('rulesModal').classList.add('show');
+      document.getElementById('helpDropdown').classList.remove('show');
+    }
+
+    function showControls() {
+      document.getElementById('controlsModal').classList.add('show');
+      document.getElementById('helpDropdown').classList.remove('show');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    // Закрытие модальных окон при клике вне их
+    window.addEventListener('click', (e) => {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      });
+
+      // Закрытие выпадающего меню при клике вне его
+      const helpDropdown = document.getElementById('helpDropdown');
+      const helpButton = document.querySelector('.help-button');
+      if (!helpButton.contains(e.target) && !helpDropdown.contains(e.target)) {
+        helpDropdown.classList.remove('show');
+      }
+    });
+
+    // Закрытие модальных окон по Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal.show');
+        modals.forEach(modal => modal.classList.remove('show'));
+        document.getElementById('helpDropdown').classList.remove('show');
+      }
+    });
 
     window.addEventListener('keydown', (e) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
