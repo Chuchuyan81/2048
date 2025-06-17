@@ -314,47 +314,36 @@
     /* Анимации движения плиток */
     .tile-moving {
       z-index: 2;
-      transition: transform 0.25s ease-in-out;
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      filter: blur(0.5px);
     }
 
-    .tile-slide-up {
-      transform: translateY(-100%);
-    }
-
-    .tile-slide-down {
-      transform: translateY(100%);
-    }
-
-    .tile-slide-left {
-      transform: translateX(-100%);
-    }
-
-    .tile-slide-right {
-      transform: translateX(100%);
+    .tile-moving.no-blur {
+      filter: none;
     }
 
     /* Анимация появления новых плиток */
     .tile-new {
-      animation: tileAppear 0.3s ease-out;
+      animation: tileAppear 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
     @keyframes tileAppear {
       0% {
-        transform: scale(0);
+        transform: scale(0) rotate(180deg);
         opacity: 0;
       }
-      50% {
-        transform: scale(1.1);
+      60% {
+        transform: scale(1.2) rotate(0deg);
       }
       100% {
-        transform: scale(1);
+        transform: scale(1) rotate(0deg);
         opacity: 1;
       }
     }
 
     /* Анимация объединения плиток */
     .tile-merged {
-      animation: tileMerge 0.2s ease-out;
+      animation: tileMerge 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
     @keyframes tileMerge {
@@ -362,11 +351,18 @@
         transform: scale(1); 
       }
       50% { 
-        transform: scale(1.15); 
+        transform: scale(1.25) rotate(5deg); 
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
       }
       100% { 
-        transform: scale(1); 
+        transform: scale(1) rotate(0deg); 
+        box-shadow: none;
       }
+    }
+
+    /* Эффект свечения для больших чисел */
+    .tile-1024, .tile-2048 {
+      box-shadow: 0 0 10px rgba(237, 197, 63, 0.5);
     }
 
     /* Цвета для плиток */
@@ -669,54 +665,161 @@
       }, 50);
     }
 
-    function slideWithMerge(row) {
-      const arr = row.filter(val => val);
-      const merged = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i] && arr[i] === arr[i + 1]) {
-          merged.push(arr[i] * 2);
-          score += arr[i] * 2;
-          i++;
-        } else {
-          merged.push(arr[i]);
-        }
-      }
-      return [...merged, ...Array(size - merged.length).fill(0)];
-    }
-
     function move(direction) {
       if (gameOver || isAnimating) return;
       
       isAnimating = true;
       let moved = false;
+      let moveInfo = [];
       let newBoard = JSON.parse(JSON.stringify(board));
-      let mergedPositions = [];
 
+      // Вычисляем движения для каждой плитки
       if (direction === 'ArrowUp' || direction === 'ArrowDown') {
         for (let c = 0; c < size; c++) {
           let col = [];
+          let originalPositions = [];
+          
+          // Собираем плитки в колонке
           for (let r = 0; r < size; r++) {
-            col.push(board[r][c]);
+            if (board[r][c] !== 0) {
+              col.push(board[r][c]);
+              originalPositions.push(r);
+            }
           }
-          if (direction === 'ArrowDown') col.reverse();
-          const result = slideWithMerge(col.filter(val => val));
-          if (direction === 'ArrowDown') result.reverse();
+          
+          if (col.length === 0) continue;
+          
+          // Применяем движение
+          if (direction === 'ArrowDown') {
+            col.reverse();
+            originalPositions.reverse();
+          }
+          
+          const result = slideWithMergeInfo(col);
+          
+          if (direction === 'ArrowDown') {
+            result.values.reverse();
+            result.merges.reverse();
+            originalPositions.reverse();
+          }
+          
+          // Определяем конечные позиции и записываем движения
+          let finalPositions = [];
+          let targetRow = direction === 'ArrowUp' ? 0 : size - 1;
+          let step = direction === 'ArrowUp' ? 1 : -1;
+          
+          for (let i = 0; i < result.values.length; i++) {
+            if (result.values[i] !== 0) {
+              finalPositions.push(targetRow);
+              targetRow += step;
+            } else {
+              finalPositions.push(-1);
+            }
+          }
+          
+          // Записываем информацию о движении
+          for (let i = 0; i < originalPositions.length; i++) {
+            const sourceRow = originalPositions[i];
+            const finalRow = finalPositions[i];
+            
+            if (finalRow !== -1 && sourceRow !== finalRow) {
+              moveInfo.push({
+                from: { r: sourceRow, c: c },
+                to: { r: finalRow, c: c },
+                value: result.values[i],
+                merged: result.merges[i]
+              });
+              moved = true;
+            }
+          }
+          
+          // Обновляем доску
           for (let r = 0; r < size; r++) {
-            if (newBoard[r][c] !== result[r]) moved = true;
-            newBoard[r][c] = result[r];
+            newBoard[r][c] = 0;
+          }
+          let pos = direction === 'ArrowUp' ? 0 : size - 1;
+          for (let i = 0; i < result.values.length; i++) {
+            if (result.values[i] !== 0) {
+              newBoard[pos][c] = result.values[i];
+              pos += step;
+            }
           }
         }
       } else {
         for (let r = 0; r < size; r++) {
-          const row = board[r];
-          const result = direction === 'ArrowLeft' ? slideWithMerge(row.filter(val => val)) : slideWithMerge([...row].reverse()).reverse();
-          if (result.some((val, i) => val !== row[i])) moved = true;
-          newBoard[r] = result;
+          let row = [];
+          let originalPositions = [];
+          
+          // Собираем плитки в строке
+          for (let c = 0; c < size; c++) {
+            if (board[r][c] !== 0) {
+              row.push(board[r][c]);
+              originalPositions.push(c);
+            }
+          }
+          
+          if (row.length === 0) continue;
+          
+          // Применяем движение
+          if (direction === 'ArrowRight') {
+            row.reverse();
+            originalPositions.reverse();
+          }
+          
+          const result = slideWithMergeInfo(row);
+          
+          if (direction === 'ArrowRight') {
+            result.values.reverse();
+            result.merges.reverse();
+            originalPositions.reverse();
+          }
+          
+          // Определяем конечные позиции и записываем движения
+          let finalPositions = [];
+          let targetCol = direction === 'ArrowLeft' ? 0 : size - 1;
+          let step = direction === 'ArrowLeft' ? 1 : -1;
+          
+          for (let i = 0; i < result.values.length; i++) {
+            if (result.values[i] !== 0) {
+              finalPositions.push(targetCol);
+              targetCol += step;
+            } else {
+              finalPositions.push(-1);
+            }
+          }
+          
+          // Записываем информацию о движении
+          for (let i = 0; i < originalPositions.length; i++) {
+            const sourceCol = originalPositions[i];
+            const finalCol = finalPositions[i];
+            
+            if (finalCol !== -1 && sourceCol !== finalCol) {
+              moveInfo.push({
+                from: { r: r, c: sourceCol },
+                to: { r: r, c: finalCol },
+                value: result.values[i],
+                merged: result.merges[i]
+              });
+              moved = true;
+            }
+          }
+          
+          // Обновляем доску
+          for (let c = 0; c < size; c++) {
+            newBoard[r][c] = 0;
+          }
+          let pos = direction === 'ArrowLeft' ? 0 : size - 1;
+          for (let i = 0; i < result.values.length; i++) {
+            if (result.values[i] !== 0) {
+              newBoard[r][pos] = result.values[i];
+              pos += step;
+            }
+          }
         }
       }
 
       if (moved) {
-        animateMovement(direction, () => {
+        animateMovement(moveInfo, () => {
           board = newBoard;
           addRandomTile();
           updateBoard();
@@ -728,31 +831,73 @@
       }
     }
 
-    function animateMovement(direction, callback) {
-      // Создаем копии всех плиток с числами для анимации
-      const tiles = Array.from(document.querySelectorAll('.tile')).filter(tile => 
-        tile.textContent && tile.textContent !== '0'
-      );
+    function slideWithMergeInfo(row) {
+      const arr = row.filter(val => val);
+      const merged = [];
+      const merges = [];
       
-      if (tiles.length === 0) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i] && arr[i] === arr[i + 1]) {
+          merged.push(arr[i] * 2);
+          merges.push(true);
+          score += arr[i] * 2;
+          i++;
+        } else {
+          merged.push(arr[i]);
+          merges.push(false);
+        }
+      }
+      
+      // Дополняем до нужной длины
+      while (merged.length < size) {
+        merged.push(0);
+        merges.push(false);
+      }
+      
+      return { values: merged, merges: merges };
+    }
+
+    function animateMovement(moveInfo, callback) {
+      if (moveInfo.length === 0) {
         callback();
         return;
       }
 
-      const slideClass = `tile-slide-${direction.replace('Arrow', '').toLowerCase()}`;
-      
-      // Добавляем анимацию движения
-      tiles.forEach(tile => {
-        tile.classList.add('tile-moving', slideClass);
+      const tileSize = gameContainer.offsetWidth / 4 - 10; // Размер плитки с учетом gap
+      const gap = 10;
+
+      // Анимируем каждую движущуюся плитку
+      moveInfo.forEach((info, index) => {
+        const tile = document.getElementById(`tile-${info.from.r}-${info.from.c}`);
+        if (tile) {
+          const deltaX = (info.to.c - info.from.c) * (tileSize + gap);
+          const deltaY = (info.to.r - info.from.r) * (tileSize + gap);
+          
+          tile.classList.add('tile-moving');
+          tile.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+          
+          // Добавляем эффект размытия в движении
+          setTimeout(() => {
+            tile.classList.remove('no-blur');
+          }, 50);
+        }
       });
 
-      // Убираем анимацию через 250мс и выполняем callback
+      // Завершаем анимацию
       setTimeout(() => {
-        tiles.forEach(tile => {
-          tile.classList.remove('tile-moving', 'tile-slide-up', 'tile-slide-down', 'tile-slide-left', 'tile-slide-right');
+        moveInfo.forEach(info => {
+          const tile = document.getElementById(`tile-${info.from.r}-${info.from.c}`);
+          if (tile) {
+            tile.classList.remove('tile-moving');
+            tile.style.transform = '';
+            tile.classList.add('no-blur');
+          }
         });
-        callback();
-      }, 250);
+        
+        setTimeout(() => {
+          callback();
+        }, 50);
+      }, 300);
     }
 
     function updateBoard() {
@@ -770,7 +915,7 @@
             tile.classList.add('tile-merged');
             setTimeout(() => {
               tile.classList.remove('tile-merged');
-            }, 200);
+            }, 300);
           }
         }
       }
